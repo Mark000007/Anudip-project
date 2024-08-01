@@ -1,0 +1,134 @@
+// Employee.java
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class Employee {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    private String email;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+// HibernateConfig.java
+
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+
+import java.util.Properties;
+
+public class HibernateConfig {
+
+    private static SessionFactory sessionFactory;
+
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            try {
+                Configuration configuration = new Configuration();
+
+                Properties properties = new Properties();
+                properties.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+                properties.put("hibernate.connection.url", "jdbc:mysql://localhost:3306/mydb");
+                properties.put("hibernate.connection.username", "myuser");
+                properties.put("hibernate.connection.password", "mypassword");
+                properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+                properties.put("hibernate.show_sql", "true");
+                properties.put("hibernate.format_sql", "true");
+                properties.put("hibernate.hbm2ddl.auto", "update");
+
+                configuration.setProperties(properties);
+                configuration.addAnnotatedClass(Employee.class);
+
+                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                        .applySettings(configuration.getProperties())
+                        .build();
+
+                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            } catch (Throwable ex) {
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// CreateEmployee.java
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+public class CreateEmployee {
+
+    public static void main(String[] args) {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+
+        Employee employee = new Employee();
+        employee.setName("John Doe");
+        employee.setEmail("john.doe@example.com");
+
+        session.save(employee);
+        transaction.commit();
+        session.close();
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// ReadEmployee.java
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+public class ReadEmployee {
+
+    public static void main(String[] args) {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+
+        Employee employee = session.get(Employee.class, 1L);
+
+        if (employee != null) {
+            System.out.println("Employee Name: " + employee.getName());
+            System.out.println("Employee Email: " + employee.getEmail());
+        } else {
+            System.out.println("Employee not found");
+        }
+
+        transaction.commit();
+        session.close();
+    }
+}
