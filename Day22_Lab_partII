@@ -1,0 +1,42 @@
+Step 1. Check for Null: After calling the get() method, you should check if the returned object is null to handle cases where the entity might not be found.
+
+Student student = session.get(Student.class, studentId);
+if (student == null) {
+    System.out.println("Student with ID " + studentId + " not found.");
+    // Handle the situation accordingly
+} else {
+    // Proceed with the logic using the student object
+}
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Step 2. Exception Handling: While get() does not throw an exception when the entity is not found, you might want to handle any potential exceptions that occur during the database interaction.
+
+try {
+    Student student = session.get(Student.class, studentId);
+    if (student == null) {
+        System.out.println("Student with ID " + studentId + " not found.");
+        // Handle the situation accordingly
+    } else {
+        // Proceed with the logic using the student object
+    }
+} catch (HibernateException e) {
+    e.printStackTrace();
+    // Handle exception
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Step 3. Alternative Method - load(): If you use the load() method instead of get(), it will throw an exception (ObjectNotFoundException) if the entity with the given ID does not exist. Use load() 
+when you are sure that the entity must exist and want to handle it differently if it does not.
+
+
+try {
+    Student student = session.load(Student.class, studentId);
+    // Use the student object
+} catch (ObjectNotFoundException e) {
+    System.out.println("Student with ID " + studentId + " not found.");
+    // Handle the exception
+}
